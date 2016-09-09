@@ -65,7 +65,8 @@ impl <V> Graph<Vec<V>> where V: 'static{
     /// `GridPrint` values. Divide by two to get the number of characters the graph will take up.
     /// `key` is a function that translates values from the data vector into the domain of [0.0,
     /// 1.0).
-    pub fn hist(width: usize, height: usize, key: Box<Fn(&V) -> f32>) -> Graph<Vec<V>> {
+    pub fn hist(width: usize, height: usize, key: Box<Fn(&V) -> f32>) -> Graph<Vec<V>>
+    {
         let mut buf = sf::Buffer::new(width, height, false);
         let thing = move |dat: &Vec<V>, x:usize, y:usize| {
             if dat.len() <= 1 {
@@ -76,6 +77,26 @@ impl <V> Graph<Vec<V>> where V: 'static{
                 let h = y as f32 / height as f32 ;
                 key(&dat[index]) >= h
             }
+        };
+        Graph {
+            buf: buf,
+            data: Vec::new(),
+            renderer: Box::new(thing)
+        }
+    }
+    pub fn scatter(width: usize, height: usize, hkey: Box<Fn(&V) -> f32>, vkey: Box<Fn(&V) -> f32>) -> Graph<Vec<V>>
+    {
+        let mut buf = sf::Buffer::new(width, height, false);
+        let thing = move |dat: &Vec<V>, x: usize, y: usize|
+        {
+            for val in dat {
+                let (a, b) = (hkey(val), vkey(val));
+                let (a, b) = (a*width as f32, b*height as f32);
+                if a.floor() == x as f32 && b.floor() == y as f32 {
+                    return true
+                }
+            }
+            false
         };
         Graph {
             buf: buf,
