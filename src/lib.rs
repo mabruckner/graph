@@ -12,24 +12,7 @@ use std::mem;
 static hblocks: [char; 9] = [' ','▏','▎','▍','▌','▋','▊','▉','█'];
 static vblocks: [char; 9] = [' ','▁','▂','▃','▄','▅','▆','▇','█'];
 
-/// A trait for objects that can be represented as a grid of characters.
-pub trait GridPrint {
-    /// Gets the dimensions as (width, height). Calls to `get_cell` should not exceed these bounds.
-    fn get_size(&self) -> (usize, usize);
-
-    /// Gets the character residing in cell (x,y). Calls to `get_cell` should respect the bounds set
-    /// by `get_size`. This library assumes that y index increases with decreasing vertical position.
-    /// (This is contrary to starfield)
-    fn get_cell(&self, x:usize, y:usize) -> sf::ColorChar;
-
-    /// Print the grid to standard out.
-    fn print(&self) {
-        let (width,height) = self.get_size();
-        for i in 0..height {
-            println!("{}", sf::make_colorstring((0..width).map(|x|{self.get_cell(x, i)})));
-        }
-    }
-}
+pub use starfield_render::GridPrint;
 
 /// A general structure representing a simple 2D graph.
 ///
@@ -106,7 +89,7 @@ impl <V> Graph<Vec<V>> where V: 'static{
     }
 }
 
-impl <D> GridPrint for Graph<D> {
+impl <D> sf::GridPrint for Graph<D> {
     fn get_size(&self) -> (usize, usize)
     {
         (self.buf.width / 2,self.buf.height / 2)
@@ -138,7 +121,7 @@ impl HBar {
     }
 }
 
-impl GridPrint for HBar {
+impl sf::GridPrint for HBar {
     fn get_size(&self) -> (usize, usize)
     {
         (self.width, 1)
